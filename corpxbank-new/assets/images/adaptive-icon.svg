@@ -1,0 +1,27 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background for adaptive icon (will be masked by system) -->
+  <rect width="512" height="512" fill="#0E0E0E"/>
+  
+  <!-- Safe area for adaptive icons (center 66% of the icon) -->
+  <!-- This ensures the logo is visible even with circular or other shaped masks -->
+  <g transform="translate(256, 256) scale(0.8)">
+    <!-- Outer glow effects -->
+    <circle cx="0" cy="0" r="140" fill="#1976D2" opacity="0.15"/>
+    <circle cx="0" cy="0" r="110" fill="#1976D2" opacity="0.25"/>
+    
+    <!-- Main circle background -->
+    <circle cx="0" cy="0" r="90" fill="#1A1A1A" stroke="#1976D2" stroke-width="5"/>
+    
+    <!-- CORPX text -->
+    <text x="0" y="-12" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#FFFFFF" text-anchor="middle">CORPX</text>
+    
+    <!-- BANK text -->
+    <text x="0" y="18" font-family="Arial, sans-serif" font-size="16" font-weight="300" fill="#CCCCCC" text-anchor="middle">BANK</text>
+    
+    <!-- Decorative corner elements (smaller for adaptive icon) -->
+    <circle cx="-65" cy="-65" r="4" fill="#1976D2" opacity="0.8"/>
+    <circle cx="65" cy="-65" r="4" fill="#1976D2" opacity="0.8"/>
+    <circle cx="-65" cy="65" r="4" fill="#1976D2" opacity="0.8"/>
+    <circle cx="65" cy="65" r="4" fill="#1976D2" opacity="0.8"/>
+  </g>
+</svg>

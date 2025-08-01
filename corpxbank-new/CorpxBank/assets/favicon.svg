@@ -1,0 +1,16 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="32" height="32" rx="6" fill="#0E0E0E"/>
+  
+  <!-- Main logo container -->
+  <g transform="translate(16, 16)">
+    <!-- Main circle background -->
+    <circle cx="0" cy="0" r="12" fill="#1A1A1A" stroke="#1976D2" stroke-width="1.5"/>
+    
+    <!-- CORPX text (simplified for small size) -->
+    <text x="0" y="-1" font-family="Arial, sans-serif" font-size="6" font-weight="bold" fill="#FFFFFF" text-anchor="middle">CORPX</text>
+    
+    <!-- BANK text (simplified for small size) -->
+    <text x="0" y="4" font-family="Arial, sans-serif" font-size="3" fill="#CCCCCC" text-anchor="middle">BANK</text>
+  </g>
+</svg>

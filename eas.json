@@ -1,0 +1,116 @@
+{
+  "cli": {
+    "version": ">= 3.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "android": {
+        "buildType": "apk",
+        "gradleCommand": ":app:assembleRelease"
+      },
+      "ios": {
+        "simulator": false
+      },
+      "distribution": "internal",
+      "env": {
+        "NODE_ENV": "production"
+      }
+    },
+    "production": {
+      "android": {
+        "buildType": "apk"
+      },
+      "ios": {
+        "image": "latest"
+      },
+      "env": {
+        "NODE_ENV": "production",
+        "EXPO_USE_NEW_ARCHITECTURE": "0"
+      }
+    },
+
+    "ios-test": {
+      "ios": {
+        "simulator": false,
+        "image": "latest",
+        "credentialsSource": "remote"
+      },
+      "distribution": "internal",
+      "env": {
+        "NODE_ENV": "development",
+        "EXPO_USE_HERMES": "0"
+      }
+    },
+    "simple": {
+      "android": {
+        "buildType": "apk"
+      },
+      "distribution": "internal",
+      "env": {
+        "NODE_ENV": "development",
+        "EXPO_NO_MINIFY": "1",
+        "EXPO_USE_METRO_WORKSPACE_ROOT": "1",
+        "EAS_SKIP_AUTO_FINGERPRINT": "1"
+      }
+    },
+    "debug": {
+      "android": {
+        "buildType": "apk",
+        "gradleCommand": ":app:assembleDebug"
+      },
+      "distribution": "internal",
+      "env": {
+        "NODE_ENV": "development",
+        "EXPO_NO_MINIFY": "1",
+        "EXPO_NO_OPTIMIZE": "1",
+        "EXPO_USE_METRO_WORKSPACE_ROOT": "1",
+        "EAS_SKIP_AUTO_FINGERPRINT": "1",
+        "EXPO_DEBUG": "1"
+      }
+    },
+    "basic": {
+      "android": {
+        "buildType": "apk"
+      },
+      "distribution": "internal"
+    },
+    "clean": {
+      "android": {
+        "buildType": "apk"
+      },
+      "distribution": "internal",
+      "env": {
+        "NODE_ENV": "production"
+      }
+    },
+    "minimal": {
+      "android": {
+        "buildType": "apk",
+        "gradleCommand": ":app:assembleRelease"
+      },
+      "distribution": "internal",
+      "env": {
+        "NODE_ENV": "development",
+        "EXPO_USE_METRO_WORKSPACE_ROOT": "1"
+      }
+    },
+    "local": {
+      "android": {
+        "buildType": "apk",
+        "gradleCommand": ":app:assembleRelease"
+      },
+      "distribution": "internal",
+      "env": {
+        "NODE_ENV": "production"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}
