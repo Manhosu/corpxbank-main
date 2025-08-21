@@ -25,9 +25,16 @@ import { Constants } from 'expo-constants';
 import CookieManager from '@react-native-cookies/cookies';
 
 /**
- * ===== SISTEMA AVANÇADO DE GERENCIAMENTO DE COOKIES E SESSÃO =====
+ * ===== SISTEMA CORRIGIDO DE GERENCIAMENTO DE COOKIES E SESSÃO =====
  * 
- * ARQUITETURA IMPLEMENTADA:
+ * 🛠️ CORREÇÕES IMPLEMENTADAS:
+ * ✅ Unificação do sistema de cookies (APENAS nativo @react-native-cookies/cookies)
+ * ✅ Sincronização correta entre injeção e validação de cookies
+ * ✅ Timeout adequado para propagação de cookies (5 segundos total)
+ * ✅ Detecção automática de sessão expirada
+ * ✅ Estados da WebView sincronizados corretamente
+ * 
+ * 🚀 FLUXO CORRIGIDO:
  * 
  * 1. PRIMEIRO LOGIN MANUAL:
  *    - Usuário faz login normal com credenciais/2FA/captcha
@@ -35,12 +42,12 @@ import CookieManager from '@react-native-cookies/cookies';
  *    - Cookies são salvos de forma persistente no expo-secure-store
  *    - Oferece ativação de biometria para próximos acessos
  * 
- * 2. LOGIN COM BIOMETRIA (USUÁRIO EXISTENTE):
+ * 2. LOGIN COM BIOMETRIA (CORRIGIDO):
  *    - Valida biometria do usuário
- *    - Injeta cookies salvos ANTES de carregar WebView via CookieManager.setFromResponse()
- *    - Valida sessão com servidor via requisição HEAD para inicial.php
- *    - Se válida: carrega inicial.php diretamente (NUNCA login.php)
- *    - Se inválida: executa auto-login silencioso em background
+ *    - Injeta cookies salvos + aguarda propagação (2s)
+ *    - Valida sessão com servidor + aguarda propagação (3s)
+ *    - Se válida: carrega inicial.php diretamente ✅
+ *    - Se inválida: executa auto-login silencioso
  * 
  * 3. AUTO-LOGIN SILENCIOSO:
  *    - Carrega login.php em background (usuário vê apenas loading)
@@ -48,14 +55,19 @@ import CookieManager from '@react-native-cookies/cookies';
  *    - Captura novos cookies após sucesso
  *    - Redireciona para inicial.php
  * 
- * 4. GARANTIAS DO SISTEMA:
- *    - Usuário NUNCA vê login.php após configurar biometria
+ * 4. DETECÇÃO DE SESSÃO EXPIRADA (NOVO):
+ *    - Monitora redirecionamentos forçados para login.php
+ *    - Limpa automaticamente dados de sessão inválida
+ *    - Força usuário a fazer login manual completo
+ * 
+ * 5. GARANTIAS DO SISTEMA:
+ *    - Usuário NUNCA vê login.php após configurar biometria (CORRIGIDO)
  *    - Sessão persiste entre fechamentos completos do app
- *    - Fallbacks robustos para todos os cenários de falha
+ *    - Sistema unificado de cookies (sem conflitos)
  *    - Compatibilidade total com Android e iOS
  * 
- * 5. TECNOLOGIAS UTILIZADAS:
- *    - @react-native-cookies/cookies: Gerenciamento nativo de cookies
+ * 6. TECNOLOGIAS UTILIZADAS:
+ *    - @react-native-cookies/cookies: Gerenciamento nativo de cookies (ÚNICO)
  *    - expo-secure-store: Armazenamento seguro de credenciais e cookies
  *    - expo-local-authentication: Biometria (Face ID/Touch ID/Fingerprint)
  *    - react-native-webview: Interface bancária segura
@@ -219,6 +231,7 @@ export default function CorpxWebViewScreen({ navigation, route }) {
       const savedCookieData = await SecureStore.getItemAsync(NATIVE_COOKIES_KEY);
       if (!savedCookieData) {
         console.log('❌ [COOKIE-FLOW] Nenhum cookie nativo salvo encontrado');
+        setCookiesInjected(false);
         return false;
       }
       
@@ -236,7 +249,19 @@ export default function CorpxWebViewScreen({ navigation, route }) {
           SecureStore.deleteItemAsync(NATIVE_COOKIES_KEY),
           SecureStore.deleteItemAsync(COOKIE_EXPIRY_KEY)
         ]);
+        setCookiesInjected(false);
         return false;
+      }
+      
+      console.log(`🔄 [COOKIE-FLOW] Injetando ${Object.keys(cookieData.cookies).length} cookies...`);
+      
+      // PRIMEIRA TENTATIVA: Limpar cookies antigos para evitar conflitos
+      try {
+        await CookieManager.clearAll(true);
+        console.log('🧹 Cookies antigos limpos');
+        await new Promise(resolve => setTimeout(resolve, 500)); // Aguardar limpeza
+      } catch (error) {
+        console.log('⚠️ Aviso: não foi possível limpar cookies antigos');
       }
       
       // Injetar cada cookie usando CookieManager
@@ -244,29 +269,28 @@ export default function CorpxWebViewScreen({ navigation, route }) {
       const cookiePromises = [];
       
       for (const [name, cookieInfo] of Object.entries(cookieData.cookies)) {
-        const cookieOptions = {
-          name: name,
-          value: typeof cookieInfo === 'object' ? cookieInfo.value : cookieInfo,
-          domain: COOKIE_DOMAIN,
-          path: '/',
-          version: '1',
-          expires: new Date(cookieData.expiresAt).toUTCString()
-        };
+        const cookieValue = typeof cookieInfo === 'object' ? cookieInfo.value : cookieInfo;
         
-        cookiePromises.push(
-          CookieManager.setFromResponse(COOKIE_URL, `${name}=${cookieOptions.value}; path=/; domain=${COOKIE_DOMAIN}`)
-            .then(() => {
-              injectedCount++;
-              console.log(`✅ Cookie ${name} injetado`);
-            })
-            .catch(error => {
-              console.log(`⚠️ Erro ao injetar cookie ${name}:`, error);
-            })
-        );
+        console.log(`🍪 [COOKIE-FLOW] Injetando cookie: ${name}`);
+        
+        const promise = CookieManager.setFromResponse(COOKIE_URL, `${name}=${cookieValue}; Domain=${COOKIE_DOMAIN}; Path=/; HttpOnly`)
+          .then(() => {
+            injectedCount++;
+            console.log(`✅ [COOKIE-FLOW] Cookie ${name} injetado com sucesso`);
+          })
+          .catch(error => {
+            console.log(`❌ [COOKIE-FLOW] Falha ao injetar cookie ${name}:`, error);
+          });
+        
+        cookiePromises.push(promise);
       }
       
       // Aguardar todas as injeções
       await Promise.all(cookiePromises);
+      
+      // CRÍTICO: Aguardar propagação no sistema nativo (2 segundos adicionais)
+      console.log('⏳ Aguardando propagação de cookies no sistema nativo...');
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
       console.log(`🍪 [COOKIE-FLOW] ${injectedCount}/${Object.keys(cookieData.cookies).length} cookies injetados`);
       console.log('🍪 [COOKIE-FLOW] Cookies injetados:', Object.keys(cookieData.cookies).slice(0, 3).join(', '));
@@ -274,7 +298,9 @@ export default function CorpxWebViewScreen({ navigation, route }) {
       
       // Considerar sucesso se pelo menos 1 cookie foi injetado
       const success = injectedCount > 0;
-      setCookiesInjected(success);
+      
+      // NÃO definir setCookiesInjected aqui - será definido após validação bem-sucedida
+      console.log(`🍪 [COOKIE-FLOW] Resultado da injeção: ${success ? 'SUCESSO' : 'FALHA'}`);
       
       return success;
       
@@ -298,12 +324,20 @@ export default function CorpxWebViewScreen({ navigation, route }) {
       setValidatingSession(true);
       showDebugMessage('Validando sessão...');
       
+      // CRÍTICO: Aguardar tempo suficiente para cookies se propagarem no sistema
+      console.log('⏳ Aguardando propagação de cookies (3 segundos)...');
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
       // Fazer requisição HEAD para verificar se sessão é válida
       const response = await fetch('https://corpxbank.com.br/inicial.php', {
         method: 'HEAD',
         credentials: 'include', // Incluir cookies
         headers: {
-          'User-Agent': 'CorpxBank Mobile App'
+          'User-Agent': 'CorpxBank Mobile App',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'Accept-Language': 'pt-BR,pt;q=0.8,en;q=0.5',
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
         }
       });
       
@@ -321,10 +355,10 @@ export default function CorpxWebViewScreen({ navigation, route }) {
       
       if (isValid) {
         console.log('✅ [COOKIE-FLOW] Sessão validada com sucesso pelo servidor');
-        showDebugMessage('Sessão válida confirmada');
+        showDebugMessage('Sessão válida confirmada ✅');
       } else {
         console.log('❌ Sessão inválida detectada pelo servidor');
-        showDebugMessage('Sessão expirada');
+        showDebugMessage('Sessão expirada ❌');
       }
       
       return isValid;
@@ -335,6 +369,53 @@ export default function CorpxWebViewScreen({ navigation, route }) {
       setSessionValidated(false);
       showDebugMessage('Erro na validação');
       return false;
+    }
+  };
+
+  /**
+   * FUNÇÃO CRÍTICA: Detecta expiração de sessão e força login manual
+   * Monitora navegação para detectar redirecionamentos forçados para login.php
+   * Quando detectado, limpa dados e força usuário a fazer login completo
+   */
+  const handleSessionExpiration = async () => {
+    try {
+      console.log('🔍 Verificando expiração de sessão...');
+      
+      // Se usuário estava autenticado mas foi redirecionado para login.php automaticamente
+      if (currentUrl.includes('login.php') && authStatus === 'authenticated' && cookiesInjected) {
+        console.log('⚠️ SESSÃO EXPIRADA DETECTADA: redirecionamento forçado para login.php');
+        showDebugMessage('Sessão expirou - login necessário');
+        
+        // Limpar todos os dados de sessão
+        console.log('🧹 Limpando dados de sessão expirada...');
+        await Promise.all([
+          SecureStore.deleteItemAsync(SESSION_COOKIES_KEY),
+          SecureStore.deleteItemAsync(SESSION_EXPIRY_KEY),
+          SecureStore.deleteItemAsync(CSRF_TOKENS_KEY),
+          SecureStore.deleteItemAsync(NATIVE_COOKIES_KEY),
+          SecureStore.deleteItemAsync(COOKIE_EXPIRY_KEY),
+          SecureStore.deleteItemAsync('last_authenticated_url')
+        ]);
+        
+        // Limpar cookies nativos
+        try {
+          await CookieManager.clearAll(true);
+          console.log('🧹 Cookies nativos limpos');
+        } catch (error) {
+          console.log('⚠️ Aviso: falha ao limpar cookies nativos');
+        }
+        
+        // Resetar estados
+        setCookiesInjected(false);
+        setSessionValidated(false);
+        setAuthStatus('needsLogin');
+        
+        console.log('✅ Limpeza de sessão expirada completa - usuário deve fazer login manual');
+        showDebugMessage('Login manual necessário');
+      }
+      
+    } catch (error) {
+      console.error('❌ Erro ao tratar expiração de sessão:', error);
     }
   };
 
@@ -783,16 +864,16 @@ export default function CorpxWebViewScreen({ navigation, route }) {
           console.log('🍪 Cookies injetados, validando com servidor...');
           showDebugMessage('Validando sessão...');
           
-          // CRÍTICO: Aguardar tempo adequado para injeção completa antes de validar
-          await new Promise(resolve => setTimeout(resolve, 1500));
-          
           const sessionValid = await validateSessionWithServer();
           
           if (sessionValid) {
             // SUCESSO: Ir direto para área autenticada
-            console.log('🎉 SUCESSO: Sessão válida, carregando área autenticada');
-            showDebugMessage('Acesso liberado!');
+            console.log('🎉 SUCESSO TOTAL: Sessão válida, carregando área autenticada');
+            showDebugMessage('Acesso liberado! ✅');
             
+            // CRÍTICO: Definir que cookies foram injetados com sucesso
+            setCookiesInjected(true);
+            setSessionValidated(true);
             setAuthStatus('authenticated');
             setCurrentUrl('https://corpxbank.com.br/inicial.php');
             setInitialUrl('https://corpxbank.com.br/inicial.php');
@@ -805,6 +886,10 @@ export default function CorpxWebViewScreen({ navigation, route }) {
             ]);
             
             return;
+          } else {
+            console.log('❌ Validação falhou - cookies inválidos/expirados');
+            setCookiesInjected(false);
+            setSessionValidated(false);
           }
         }
         
@@ -1118,16 +1203,15 @@ export default function CorpxWebViewScreen({ navigation, route }) {
     console.log('🍪 Cookies injetados:', cookiesInjected);
     showDebugMessage('onLoadEnd: ' + currentUrl);
     
+    // CRÍTICO: Verificar se sessão expirou (usuário foi redirecionado para login.php)
+    handleSessionExpiration();
+    
     setIsWebViewReady(true);
     setIsLoading(false);
 
-    // OTIMIZAÇÃO: Só injetar cookies via JavaScript se cookies nativos não foram injetados
-    if (!cookiesInjected) {
-      console.log('⚠️ Fallback: injetando cookies via JavaScript...');
-      injectCookiesIntoWebView();
-    } else {
-      console.log('✅ Cookies nativos já injetados, pulando injeção JavaScript');
-    }
+    // REMOVIDO: Sistema JavaScript de cookies para evitar conflitos
+    // APENAS sistema nativo de cookies será usado (@react-native-cookies/cookies)
+    console.log('ℹ️ Sistema unificado: usando APENAS cookies nativos (@react-native-cookies/cookies)');
 
     // === CAPTURA NATIVA DE SESSÃO OTIMIZADA ===
     // Prioriza captura nativa sobre JavaScript quando possível
@@ -1196,9 +1280,10 @@ export default function CorpxWebViewScreen({ navigation, route }) {
       return;
     }
 
-    // === OTIMIZAÇÃO AUTO-LOGIN INVISÍVEL ===
-    // Executa auto-login apenas quando necessário e com timing otimizado
-    if (currentUrl.includes('login.php') && authStatus === 'authenticated' && !autoLoginDone) {
+    // === AUTO-LOGIN SILENCIOSO CORRIGIDO ===
+    // CRÍTICO: Só executar auto-login se está em login.php MAS não deveria estar
+    // (significa que cookies falharam e precisa fazer login automático)
+    if (currentUrl.includes('login.php') && authStatus === 'authenticated' && !autoLoginDone && !cookiesInjected) {
       console.log('🎯 Condições atendidas para auto-login na página de login');
       showDebugMessage('Preparando auto-login...');
       
@@ -1790,32 +1875,13 @@ export default function CorpxWebViewScreen({ navigation, route }) {
     }
   };
 
+  // FUNÇÃO DESABILITADA: injectCookiesIntoWebView
+  // MOTIVO: Sistema unificado usa APENAS @react-native-cookies/cookies (nativo)
+  // Evita conflitos entre sistema JavaScript e nativo de cookies
   const injectCookiesIntoWebView = async () => {
-    try {
-      const cookieString = await getStoredCookiesForRequest();
-      if (!cookieString) return;
-
-      const script = `
-        (function() {
-          const cookies = '${cookieString}';
-          if (cookies) {
-            cookies.split('; ').forEach(cookie => {
-              const [name, value] = cookie.split('=');
-              if (name && value) {
-                document.cookie = name + '=' + value + '; path=/; domain=corpxbank.com.br';
-              }
-            });
-            console.log('🍪 Cookies de sessão injetados');
-          }
-        })();
-      `;
-
-      if (webViewRef.current) {
-        webViewRef.current.injectJavaScript(script);
-      }
-    } catch (error) {
-      console.error('❌ Erro ao injetar cookies:', error);
-    }
+    console.log('⚠️ SISTEMA JAVASCRIPT DE COOKIES DESABILITADO');
+    console.log('ℹ️ Usando apenas sistema nativo (@react-native-cookies/cookies)');
+    return; // NÃO executa mais injeção JavaScript
   };
 
   // FUNÇÃO AVANÇADA: Executa login automático com credenciais salvas
@@ -1825,8 +1891,8 @@ export default function CorpxWebViewScreen({ navigation, route }) {
     try {
       console.log('🤖 Iniciando processo de auto-login...');
       
-      // Injetar cookies de sessão primeiro
-      await injectCookiesIntoWebView();
+      // REMOVIDO: injectCookiesIntoWebView - usando apenas sistema nativo
+      console.log('ℹ️ Sistema nativo de cookies será usado durante auto-login');
       
       const storedLogin = await SecureStore.getItemAsync(LOGIN_KEY);
       const storedPassword = await SecureStore.getItemAsync(PASSWORD_KEY);

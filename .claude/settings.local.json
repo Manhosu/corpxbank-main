@@ -7,9 +7,13 @@
       "WebSearch",
       "Bash(npm install:*)",
       "Bash(npm run android:*)",
-      "Bash(npm start:*)"
+      "Bash(npm start:*)",
+      "Bash(npm:*)"
     ],
     "deny": [],
-    "ask": []
+    "ask": [],
+    "additionalDirectories": [
+      "C:\\mnt\\c"
+    ]
   }
 }
