@@ -1,13 +1,13 @@
 {
   "expo": {
-    "name": "Corpx",
+    "name": "CorpxBank",
     "slug": "corpx-bank",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./square-icon.png",
+    "icon": "./CorpxBank/assets/X_icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./CorpxBank/assets/logo.png",
+      "image": "./CorpxBank/assets/CorpxVdLogo.png",
       "resizeMode": "contain",
       "backgroundColor": "#FFFFFF"
     },
@@ -15,6 +15,7 @@
       "bundleIdentifier": "com.corpx.app",
       "supportsTablet": true,
       "infoPlist": {
+        "NSFaceIDUsageDescription": "Este aplicativo usa o Face ID para permitir que você faça login de forma rápida e segura.",
         "NSCameraUsageDescription": "Este app precisa acessar a câmera para escanear QR Codes, códigos de barras e documentos.",
         "NSMicrophoneUsageDescription": "Este app pode precisar acessar o microfone para funcionalidades da WebView.",
         "ITSAppUsesNonExemptEncryption": false
@@ -23,39 +24,30 @@
     "android": {
       "package": "com.corpx.app",
       "adaptiveIcon": {
-        "foregroundImage": "./square-icon.png",
+        "foregroundImage": "./CorpxBank/assets/X_icon.png",
         "backgroundColor": "#FFFFFF"
       },
+      "usesCleartextTraffic": true,
       "edgeToEdgeEnabled": true,
       "permissions": [
         "INTERNET",
-        "CAMERA",
-        "RECORD_AUDIO",
+        "WRITE_EXTERNAL_STORAGE",
+        "READ_EXTERNAL_STORAGE",
+        "DOWNLOAD_WITHOUT_NOTIFICATION",
         "android.permission.CAMERA",
-        "android.permission.RECORD_AUDIO",
-        "android.permission.WRITE_EXTERNAL_STORAGE",
-        "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.READ_MEDIA_IMAGES",
-        "android.permission.READ_MEDIA_VIDEO",
-        "android.permission.READ_MEDIA_AUDIO",
-        "android.permission.MANAGE_EXTERNAL_STORAGE",
-        "android.permission.DOWNLOAD_WITHOUT_NOTIFICATION"
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "web": {
-      "favicon": "./square-icon.png"
-    },
-    "extra": {
-      "eas": {
-        "projectId": "b9474d8e-a447-4da7-aae2-a939a31583c3"
-      }
+      "favicon": "./CorpxBank/assets/X_icon.png"
     },
     "plugins": [
       "expo-font",
       [
         "expo-camera",
         {
-          "cameraPermission": "Permitir acesso à câmera para escanear QR Codes e códigos de barras."
+          "cameraPermission": "Este app precisa acessar a câmera para escanear QR Codes, códigos de barras e documentos.",
+          "microphonePermission": "Este app pode precisar acessar o microfone para funcionalidades da WebView."
         }
       ],
       "expo-secure-store"
@@ -63,6 +55,11 @@
     "assetBundlePatterns": [
       "**/*"
     ],
-    "owner": "edevis"
+    "extra": {
+      "eas": {
+        "projectId": "079f0c45-b6f9-446b-846d-fb98365dd4dc"
+      }
+    },
+    "owner": "eduvis"
   }
 }

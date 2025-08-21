@@ -15,136 +15,23 @@ const LOGIN_STATUS_KEY = 'corpxbank_logged';
 const Stack = createStackNavigator();
 
 export default function App() {
-  const [initialRoute, setInitialRoute] = useState('Splash');
-  const [isLoading, setIsLoading] = useState(false);
-
-
-
-  const checkAuthenticationStatus = async () => {
-    try {
-      console.log('🔍 Verificando status de autenticação...');
-
-      // Delay de 2 segundos para exibir a splash screen
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      // Primeiro, verificar se já existe uma sessão válida
-      const savedSession = await SecureStore.getItemAsync(SESSION_KEY);
-      const loginStatus = await SecureStore.getItemAsync(LOGIN_STATUS_KEY);
-
-      console.log('📊 Status encontrado:', { 
-        hasSession: !!savedSession, 
-        loginStatus: loginStatus 
-      });
-
-      // Se já tem sessão válida, ir direto para WebView
-      if (savedSession && loginStatus === 'true') {
-        try {
-          const sessionData = JSON.parse(savedSession);
-          const sessionAge = Date.now() - sessionData.timestamp;
-          const maxAge = 24 * 60 * 60 * 1000; // 24 horas
-
-          if (sessionAge < maxAge) {
-            console.log('✅ Sessão válida encontrada - redirecionando para WebView');
-            setInitialRoute('WebView');
-            setIsLoading(false);
-            return;
-          } else {
-            console.log('⏰ Sessão expirada - limpando dados...');
-            await Promise.all([
-              SecureStore.deleteItemAsync(SESSION_KEY),
-              SecureStore.deleteItemAsync(LOGIN_STATUS_KEY)
-            ]);
-          }
-        } catch (error) {
-          console.error('❌ Erro ao validar sessão:', error);
-        }
-      }
-
-      // Verificar se há suporte a biometria e dados salvos
-      const compatible = await LocalAuthentication.hasHardwareAsync();
-      const enrolled = await LocalAuthentication.isEnrolledAsync();
-      const savedLogin = await SecureStore.getItemAsync('login');
-      const savedPassword = await SecureStore.getItemAsync('senha');
-      const biometricActive = await SecureStore.getItemAsync('biometriaAtiva');
-
-      console.log('🔒 Verificando biometria:', {
-        compatible,
-        enrolled,
-        hasLogin: !!savedLogin,
-        hasPassword: !!savedPassword,
-        biometricActive
-      });
-
-      // Se tem biometria disponível e configurada
-      if (compatible && enrolled && biometricActive === 'true' && savedLogin && savedPassword) {
-        console.log('🔒 Solicitando autenticação biométrica...');
-        const result = await LocalAuthentication.authenticateAsync({
-          promptMessage: 'Use sua biometria para acessar o Corpx Bank',
-          cancelLabel: 'Cancelar',
-          fallbackLabel: 'Usar senha',
-        });
-
-        if (result.success) {
-          console.log('✅ Biometria autenticada com sucesso');
-          
-          // Criar sessão imediatamente
-          const sessionData = {
-            timestamp: Date.now(),
-            login: savedLogin,
-            viaBiometric: true
-          };
-          
-          await SecureStore.setItemAsync(SESSION_KEY, JSON.stringify(sessionData));
-          await SecureStore.setItemAsync(LOGIN_STATUS_KEY, 'true');
-          
-          setInitialRoute('WebView');
-          setIsLoading(false);
-          return;
-        } else {
-          console.log('❌ Biometria falhou ou foi cancelada');
-        }
-      }
-
-      // Caso contrário, ir para tela de login via webview
-      console.log('🔑 Redirecionando para login via webview');
-      setInitialRoute('Splash');
-
-    } catch (error) {
-      console.error('❌ Erro ao verificar autenticação:', error);
-      setInitialRoute('Splash');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-
 
   return (
     <ErrorBoundary>
       <NavigationContainer>
         <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
         <Stack.Navigator
-          initialRouteName="Splash"
+          initialRouteName="WebView" // Navega direto para a WebView
           screenOptions={{
-            headerShown: false, // Ocultar header de navegação
-            gestureEnabled: false, // Desabilitar gestos de voltar
-            animationEnabled: true, // Manter animações
+            headerShown: false,
+            gestureEnabled: false,
+            animationEnabled: false, // Desabilitar animação para uma transição mais limpa
           }}
         >
-          <Stack.Screen 
-            name="Splash" 
-            component={SplashScreen}
-            options={{
-              animationTypeForReplace: 'push',
-            }}
-          />
-
+          {/* A tela Splash não é mais necessária aqui no navegador */}
           <Stack.Screen 
             name="WebView" 
             component={CorpxWebViewScreen}
-            options={{
-              animationTypeForReplace: 'push',
-            }}
           />
         </Stack.Navigator>
       </NavigationContainer>
@@ -152,17 +39,4 @@ export default function App() {
   );
 }
 
-const styles = StyleSheet.create({
-  loadingContainer: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    color: '#333333',
-    fontSize: 16,
-    marginTop: 20,
-    textAlign: 'center',
-  },
-});
+// Estilos removidos - usando apenas SplashScreen component
