@@ -7,6 +7,7 @@ import * as SecureStore from 'expo-secure-store';
 import SplashScreen from './CorpxBank/SplashScreen';
 
 import CorpxWebViewScreen from './CorpxBank/CorpxWebViewScreen';
+import ScannerScreen from './CorpxBank/ScannerScreen';
 import ErrorBoundary from './CorpxBank/ErrorBoundary';
 
 const SESSION_KEY = 'corpxbank_session';
@@ -32,6 +33,14 @@ export default function App() {
           <Stack.Screen 
             name="WebView" 
             component={CorpxWebViewScreen}
+          />
+          <Stack.Screen 
+            name="Scanner" 
+            component={ScannerScreen}
+            options={{
+              presentation: 'modal',
+              gestureEnabled: true,
+            }}
           />
         </Stack.Navigator>
       </NavigationContainer>

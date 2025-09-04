@@ -1,0 +1,5 @@
+{
+  "expo.jsEngine": "jsc",
+  "expo.useHermes": false,
+  "expo.newArchEnabled": false
+}

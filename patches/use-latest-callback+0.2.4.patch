@@ -1,0 +1,14 @@
+diff --git a/node_modules/use-latest-callback/package.json b/node_modules/use-latest-callback/package.json
+index 1234567..abcdefg 100644
+--- a/node_modules/use-latest-callback/package.json
++++ b/node_modules/use-latest-callback/package.json
+@@ -21,7 +21,8 @@
+   "exports": {
+     ".": {
+       "types": "./lib/src/index.d.ts",
+-      "import": "./esm.mjs",
++      "import": "./lib/src/index.js",
++      "require": "./lib/src/index.js",
+       "default": "./lib/src/index.js"
+     }
+   },

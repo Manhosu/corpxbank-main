@@ -1,0 +1,96 @@
+# Resolve react_native_pods.rb with node to allow for hoisting
+require Pod::Executable.execute_command('node', ['-p',
+  'require.resolve(
+    "react-native/scripts/react_native_pods.rb",
+    {paths: [process.argv[1]]},
+  )', __dir__]).strip
+
+require File.join(File.dirname(`node --print "require.resolve('expo/package.json')"`), "scripts/autolinking")
+
+platform :ios, '13.4'
+
+# Explicitly disable new architecture to prevent module conflicts
+ENV['RCT_NEW_ARCH_ENABLED'] = '0'
+
+prepare_react_native_project!
+
+# If you are using a `react-native-flipper` your iOS build will fail when `NO_FLIPPER=1` is set.
+# because `react-native-flipper` depends on (FlipperKit,...) that will be excluded
+#
+# To fix this you can also exclude `react-native-flipper` from the bundle
+# by adding it to the `react-native.config.js` file:
+#
+# module.exports = {
+#   dependencies: {
+#     ...(process.env.NO_FLIPPER ? { 'react-native-flipper': { platforms: { ios: null } } } : {}),
+#   },
+# };
+
+# Removed use_frameworks! to fix React Native 0.79.5 module redefinition issues
+# Static frameworks cause react_runtime and Foundation module conflicts
+
+target 'corpxbank' do
+  use_expo_modules!
+  config = use_native_modules!
+
+  # Configure React Native with disabled new architecture
+  flags = get_default_flags()
+  
+  use_react_native!(
+    :path => config[:reactNativePath],
+    # Hermes is now enabled by default. Disable by setting this flag to false.
+    :hermes_enabled => false,
+    # Explicitly disable Fabric (new architecture) to prevent module conflicts
+    :fabric_enabled => false,
+    # An absolute path to your application root.
+    :app_path => "#{Pod::Config.instance.installation_root}/.."
+  )
+
+  target 'corpxbankTests' do
+    inherit! :complete
+    # Pods for testing
+  end
+
+  post_install do |installer|
+    # https://github.com/facebook/react-native/blob/main/packages/react-native/scripts/react_native_pods.rb#L197-L202
+    react_native_post_install(
+      installer,
+      config[:reactNativePath],
+      :mac_catalyst_enabled => false
+    )
+    
+    # Fix for React Native 0.79.5 compatibility with Xcode 15 and iOS 17
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        # Fix module compilation issues
+        config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
+        
+        # Fix iOS 17 and Xcode 15 compatibility
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.4'
+        
+        # Fix DarwinFoundation and TargetConditionals issues
+        config.build_settings['CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER'] = 'NO'
+        config.build_settings['CLANG_WARN_DOCUMENTATION_COMMENTS'] = 'NO'
+        
+        # Prevent duplicate module definitions
+        config.build_settings['DEFINES_MODULE'] = 'YES'
+        config.build_settings['SWIFT_COMPILATION_MODE'] = 'wholemodule'
+        
+        # Fix search paths for React Native 0.79.5
+        config.build_settings['HEADER_SEARCH_PATHS'] ||= ['$(inherited)']
+        config.build_settings['HEADER_SEARCH_PATHS'] << '"$(PODS_ROOT)/Headers/Public"'
+        config.build_settings['HEADER_SEARCH_PATHS'] << '"$(PODS_ROOT)/Headers/Private"'
+      end
+    end
+    
+    # Ensure React Native targets have consistent settings
+    installer.pods_project.targets.each do |target|
+      if target.name.start_with?('React-')
+        target.build_configurations.each do |config|
+          config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++20'
+          config.build_settings['CLANG_CXX_LIBRARY'] = 'libc++'
+        end
+      end
+    end
+  end
+end

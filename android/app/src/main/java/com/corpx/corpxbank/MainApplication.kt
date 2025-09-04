@@ -1,4 +1,4 @@
-package com.corpx.app
+package com.corpx.corpxbank
 
 import android.app.Application
 import android.content.res.Configuration

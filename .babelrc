@@ -1,0 +1,9 @@
+{
+  "presets": ["babel-preset-expo"],
+  "plugins": [],
+  "env": {
+    "production": {
+      "plugins": []
+    }
+  }
+}

@@ -1,0 +1,105 @@
+diff --git a/node_modules/@react-native/gradle-plugin/.gradle/8.13/checksums/checksums.lock b/node_modules/@react-native/gradle-plugin/.gradle/8.13/checksums/checksums.lock
+new file mode 100644
+index 0000000..b76829f
+Binary files /dev/null and b/node_modules/@react-native/gradle-plugin/.gradle/8.13/checksums/checksums.lock differ
+diff --git a/node_modules/@react-native/gradle-plugin/.gradle/8.13/checksums/md5-checksums.bin b/node_modules/@react-native/gradle-plugin/.gradle/8.13/checksums/md5-checksums.bin
+new file mode 100644
+index 0000000..871e8a4
+Binary files /dev/null and b/node_modules/@react-native/gradle-plugin/.gradle/8.13/checksums/md5-checksums.bin differ
+diff --git a/node_modules/@react-native/gradle-plugin/.gradle/8.13/checksums/sha1-checksums.bin b/node_modules/@react-native/gradle-plugin/.gradle/8.13/checksums/sha1-checksums.bin
+new file mode 100644
+index 0000000..2db6e6e
+Binary files /dev/null and b/node_modules/@react-native/gradle-plugin/.gradle/8.13/checksums/sha1-checksums.bin differ
+diff --git a/node_modules/@react-native/gradle-plugin/.gradle/8.13/executionHistory/executionHistory.lock b/node_modules/@react-native/gradle-plugin/.gradle/8.13/executionHistory/executionHistory.lock
+new file mode 100644
+index 0000000..ff6a03a
+Binary files /dev/null and b/node_modules/@react-native/gradle-plugin/.gradle/8.13/executionHistory/executionHistory.lock differ
+diff --git a/node_modules/@react-native/gradle-plugin/.gradle/8.13/fileChanges/last-build.bin b/node_modules/@react-native/gradle-plugin/.gradle/8.13/fileChanges/last-build.bin
+new file mode 100644
+index 0000000..f76dd23
+Binary files /dev/null and b/node_modules/@react-native/gradle-plugin/.gradle/8.13/fileChanges/last-build.bin differ
+diff --git a/node_modules/@react-native/gradle-plugin/.gradle/8.13/fileHashes/fileHashes.lock b/node_modules/@react-native/gradle-plugin/.gradle/8.13/fileHashes/fileHashes.lock
+new file mode 100644
+index 0000000..12c33d2
+Binary files /dev/null and b/node_modules/@react-native/gradle-plugin/.gradle/8.13/fileHashes/fileHashes.lock differ
+diff --git a/node_modules/@react-native/gradle-plugin/.gradle/8.13/gc.properties b/node_modules/@react-native/gradle-plugin/.gradle/8.13/gc.properties
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/@react-native/gradle-plugin/.gradle/buildOutputCleanup/buildOutputCleanup.lock b/node_modules/@react-native/gradle-plugin/.gradle/buildOutputCleanup/buildOutputCleanup.lock
+new file mode 100644
+index 0000000..3fa28ab
+Binary files /dev/null and b/node_modules/@react-native/gradle-plugin/.gradle/buildOutputCleanup/buildOutputCleanup.lock differ
+diff --git a/node_modules/@react-native/gradle-plugin/.gradle/buildOutputCleanup/cache.properties b/node_modules/@react-native/gradle-plugin/.gradle/buildOutputCleanup/cache.properties
+new file mode 100644
+index 0000000..818adc9
+--- /dev/null
++++ b/node_modules/@react-native/gradle-plugin/.gradle/buildOutputCleanup/cache.properties
+@@ -0,0 +1,2 @@
++#Wed Aug 27 21:25:59 BRT 2025
++gradle.version=8.13
+diff --git a/node_modules/@react-native/gradle-plugin/.gradle/vcs-1/gc.properties b/node_modules/@react-native/gradle-plugin/.gradle/vcs-1/gc.properties
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/@react-native/gradle-plugin/react-native-gradle-plugin/build.gradle.kts b/node_modules/@react-native/gradle-plugin/react-native-gradle-plugin/build.gradle.kts
+index 022f60c..75ed20b 100644
+--- a/node_modules/@react-native/gradle-plugin/react-native-gradle-plugin/build.gradle.kts
++++ b/node_modules/@react-native/gradle-plugin/react-native-gradle-plugin/build.gradle.kts
+@@ -66,8 +66,9 @@ tasks.withType<KotlinCompile>().configureEach {
+     apiVersion.set(KotlinVersion.KOTLIN_1_7)
+     // See comment above on JDK 11 support
+     jvmTarget.set(JvmTarget.JVM_11)
+-    allWarningsAsErrors =
+-        project.properties["enableWarningsAsErrors"]?.toString()?.toBoolean() ?: false
++    allWarningsAsErrors.set(
++        project.findProperty("enableWarningsAsErrors")?.toString()?.toBoolean() ?: false
++    )
+   }
+ }
+ 
+diff --git a/node_modules/@react-native/gradle-plugin/settings-plugin/build.gradle.kts b/node_modules/@react-native/gradle-plugin/settings-plugin/build.gradle.kts
+index 8f5ae86..abd3a22 100644
+--- a/node_modules/@react-native/gradle-plugin/settings-plugin/build.gradle.kts
++++ b/node_modules/@react-native/gradle-plugin/settings-plugin/build.gradle.kts
+@@ -56,8 +56,9 @@ tasks.withType<KotlinCompile>().configureEach {
+     apiVersion.set(KotlinVersion.KOTLIN_1_7)
+     // See comment above on JDK 11 support
+     jvmTarget.set(JvmTarget.JVM_11)
+-    allWarningsAsErrors =
+-        project.properties["enableWarningsAsErrors"]?.toString()?.toBoolean() ?: false
++    allWarningsAsErrors.set(
++        project.findProperty("enableWarningsAsErrors")?.toString()?.toBoolean() ?: false
++    )
+   }
+ }
+ 
+diff --git a/node_modules/@react-native/gradle-plugin/shared-testutil/build.gradle.kts b/node_modules/@react-native/gradle-plugin/shared-testutil/build.gradle.kts
+index b3c0204..ec3bf65 100644
+--- a/node_modules/@react-native/gradle-plugin/shared-testutil/build.gradle.kts
++++ b/node_modules/@react-native/gradle-plugin/shared-testutil/build.gradle.kts
+@@ -27,8 +27,9 @@ tasks.withType<KotlinCompile>().configureEach {
+     apiVersion.set(KotlinVersion.KOTLIN_1_7)
+     // See comment above on JDK 11 support
+     jvmTarget.set(JvmTarget.JVM_11)
+-    allWarningsAsErrors =
++    allWarningsAsErrors.set(
+         project.properties["enableWarningsAsErrors"]?.toString()?.toBoolean() ?: false
++    )
+   }
+ }
+ 
+diff --git a/node_modules/@react-native/gradle-plugin/shared/build.gradle.kts b/node_modules/@react-native/gradle-plugin/shared/build.gradle.kts
+index b705a7c..209f66e 100644
+--- a/node_modules/@react-native/gradle-plugin/shared/build.gradle.kts
++++ b/node_modules/@react-native/gradle-plugin/shared/build.gradle.kts
+@@ -33,8 +33,9 @@ tasks.withType<KotlinCompile>().configureEach {
+     apiVersion.set(KotlinVersion.KOTLIN_1_7)
+     // See comment above on JDK 11 support
+     jvmTarget.set(JvmTarget.JVM_11)
+-    allWarningsAsErrors =
+-        project.properties["enableWarningsAsErrors"]?.toString()?.toBoolean() ?: false
++    allWarningsAsErrors.set(
++        project.findProperty("enableWarningsAsErrors")?.toString()?.toBoolean() ?: false
++    )
+   }
+ }
+ 

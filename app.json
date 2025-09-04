@@ -12,8 +12,10 @@
       "backgroundColor": "#FFFFFF"
     },
     "ios": {
-      "bundleIdentifier": "com.corpx.app",
+      "bundleIdentifier": "com.corpx.corpxbank",
       "supportsTablet": true,
+      "buildNumber": "1",
+      "jsEngine": "jsc",
       "infoPlist": {
         "NSFaceIDUsageDescription": "Este aplicativo usa o Face ID para permitir que você faça login de forma rápida e segura.",
         "NSCameraUsageDescription": "Este app precisa acessar a câmera para escanear QR Codes, códigos de barras e documentos.",
@@ -22,7 +24,7 @@
       }
     },
     "android": {
-      "package": "com.corpx.app",
+      "package": "com.corpx.corpxbank",
       "adaptiveIcon": {
         "foregroundImage": "./CorpxBank/assets/X_icon.png",
         "backgroundColor": "#FFFFFF"
@@ -50,16 +52,26 @@
           "microphonePermission": "Este app pode precisar acessar o microfone para funcionalidades da WebView."
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 34,
+            "targetSdkVersion": 34,
+            "buildToolsVersion": "34.0.0"
+          }
+        }
+      ]
     ],
     "assetBundlePatterns": [
-      "**/*"
+      "CorpxBank/assets/**/*"
     ],
+    "owner": "corpxfinal",
     "extra": {
       "eas": {
-        "projectId": "079f0c45-b6f9-446b-846d-fb98365dd4dc"
+        "projectId": "0f7ce716-f703-468d-9c3f-2d606a813479"
       }
-    },
-    "owner": "eduvis"
+    }
   }
 }

@@ -35,7 +35,7 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
-# Android
+# Android (mantendo gradle wrapper!)
 android/app/build/
 android/build/
 android/.gradle/
@@ -44,6 +44,7 @@ android/app/debug/
 android/.idea/
 android/local.properties
 android/keystore.properties
+# ⚠️ NÃO ignore android/gradle/wrapper/ nem gradlew
 
 # iOS
 ios/build/
@@ -82,7 +83,6 @@ $RECYCLE.BIN/
 *.dmg
 *.gz
 *.iso
-*.jar
 *.rar
 *.tar
 *.zip
