@@ -2,19 +2,19 @@
   "expo": {
     "name": "CorpxBank",
     "slug": "corpx-bank",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "orientation": "portrait",
-    "icon": "./CorpxBank/assets/X_icon.png",
+    "icon": "./assets/X_icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./CorpxBank/assets/CorpxVdLogo.png",
+      "image": "./assets/CorpxVdLogo.png",
       "resizeMode": "contain",
       "backgroundColor": "#FFFFFF"
     },
     "ios": {
       "bundleIdentifier": "com.corpx.corpxbank",
       "supportsTablet": true,
-      "buildNumber": "1",
+      "buildNumber": "3",
       "jsEngine": "jsc",
       "infoPlist": {
         "NSFaceIDUsageDescription": "Este aplicativo usa o Face ID para permitir que você faça login de forma rápida e segura.",
@@ -25,23 +25,23 @@
     },
     "android": {
       "package": "com.corpx.corpxbank",
+      "versionCode": 5,
       "adaptiveIcon": {
-        "foregroundImage": "./CorpxBank/assets/X_icon.png",
+        "foregroundImage": "./assets/X_icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "usesCleartextTraffic": true,
       "edgeToEdgeEnabled": true,
       "permissions": [
         "INTERNET",
         "WRITE_EXTERNAL_STORAGE",
         "READ_EXTERNAL_STORAGE",
         "DOWNLOAD_WITHOUT_NOTIFICATION",
-        "android.permission.CAMERA",
-        "android.permission.RECORD_AUDIO"
+        "CAMERA",
+        "RECORD_AUDIO"
       ]
     },
     "web": {
-      "favicon": "./CorpxBank/assets/X_icon.png"
+      "favicon": "./assets/X_icon.png"
     },
     "plugins": [
       "expo-font",
@@ -65,7 +65,7 @@
       ]
     ],
     "assetBundlePatterns": [
-      "CorpxBank/assets/**/*"
+      "assets/**/*"
     ],
     "owner": "corpxfinal",
     "extra": {

@@ -19,10 +19,8 @@ import * as LocalAuthentication from 'expo-local-authentication';
 import * as SecureStore from 'expo-secure-store';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
-import * as MediaLibrary from 'expo-media-library';
 import * as WebBrowser from 'expo-web-browser';
 import * as ImagePicker from 'expo-image-picker';
-import * as MediaLibraryPermissions from 'expo-media-library';
 import { Camera } from 'expo-camera';
 import { Constants } from 'expo-constants';
 import CookieManager from '@react-native-cookies/cookies';
@@ -1304,13 +1302,6 @@ export default function CorpxWebViewScreen({ navigation, route }) {
         }
       } else if (accept && accept.includes('image')) {
         console.log('📷 WebView: Seleção de imagem da galeria solicitada');
-        
-        // Solicitar permissão da galeria
-        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== 'granted') {
-          console.error('❌ WebView: Permissão de galeria negada');
-          return [];
-        }
         
         // Abrir galeria para seleção
         const result = await ImagePicker.launchImageLibraryAsync({
